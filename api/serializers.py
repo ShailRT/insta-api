@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = ['caption', 'content', 'bg_music', 'category']
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
