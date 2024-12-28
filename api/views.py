@@ -1,5 +1,6 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from rest_framework import status
@@ -75,6 +76,7 @@ def user_register(request):
 
     return Response({'message': 'User registered successfully'}, status=status.HTTP_201_CREATED)
 
+
 @api_view(['GET'])
 def get_post(request, pk):
     try:
@@ -89,7 +91,7 @@ def get_post(request, pk):
         return Response({'message': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
     
 # @login_required(login_url='auth/login/')
-@csrf_exempt
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def create_post(request):
     serializer = PostSerializer(data=request.data)
@@ -98,6 +100,7 @@ def create_post(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def create_profile(request):
     serializer = ProfileSerializer(data=request.data)
@@ -113,6 +116,7 @@ def view_profile(request, username):
     serializer = ProfileSerializer(profile)
     return Response(serializer.data)
 
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def follow_user(request, username):
     user = request.user 
@@ -127,6 +131,7 @@ def follow_user(request, username):
     profile.save()
     return Response({'message': message}, status=status.HTTP_200_OK)
 
+
 @api_view(['GET'])
 def get_user_posts(request, username):
     user = User.objects.get(username=username)
@@ -134,7 +139,7 @@ def get_user_posts(request, username):
     serializer = PostSerializer(posts, many=True)
     return Response(serializer.data)
 
-# @login_required(login_url='auth/login/')
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def like_post(request, pk):
     try:
@@ -151,6 +156,7 @@ def like_post(request, pk):
     except Post.DoesNotExist:
         return Response({'message': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(['GET'])
 def get_post_likes(request, pk):
     post = Post.objects.get(id=pk)
@@ -158,7 +164,7 @@ def get_post_likes(request, pk):
 
     return Response(serializer.data)
 
-# @login_required(login_url='auth/login/')
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def add_comment(request, post_id):
     try:
@@ -181,6 +187,7 @@ def get_post_comments(request, post_id):
     except Post.DoesNotExist:
         return Response({'message': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
 
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def feed(request):
     user = request.user
